@@ -1,0 +1,33 @@
+{
+  "name": "minecraft-cs",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Minecraft-themed first-person dungeon shooter (CS-like) built with Three.js",
+  "scripts": {
+    "dev": "vite --host --port 5173",
+    "build": "vite build",
+    "preview": "vite preview --host --port 4173",
+    "test:connectivity": "python3 tools/check_connectivity.py",
+    "test:seeds": "python3 tools/check_seeds.py",
+    "test:gameplay": "python3 tools/gameplay_test.py",
+    "test:soak": "python3 tools/soak_test.py",
+    "test:physics": "python3 tools/physics_test.py",
+    "test:enchant": "python3 tools/enchant_test.py",
+    "test:regression": "python3 tools/regression_test.py",
+    "test:help": "python3 tools/help_test.py",
+    "test:spawn": "python3 tools/spawn_test.py",
+    "test:armor": "python3 tools/armor_test.py",
+    "test:character": "python3 tools/character_test.py",
+    "test:hud": "python3 tools/hud_test.py",
+    "test:nav": "python3 tools/nav_test.py",
+    "test:smoke": "python3 tools/smoke_test.py",
+    "test": "npm run test:connectivity && npm run test:gameplay && npm run test:soak && npm run test:physics && npm run test:enchant && npm run test:regression && npm run test:help && npm run test:spawn && npm run test:armor && npm run test:character && npm run test:hud && npm run test:nav"
+  },
+  "dependencies": {
+    "three": "^0.180.0"
+  },
+  "devDependencies": {
+    "vite": "^7.0.0"
+  }
+}

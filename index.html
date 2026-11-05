@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>MINECRAFT: 地下城突袭 · Minecraft CS</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="game"></canvas>
+      <canvas id="hud"></canvas>
+
+      <!-- ============ 载入 ============ -->
+      <section id="loading">
+        <div class="label" id="load-label">正在生成地牢… 0%</div>
+        <div class="bar"><i id="load-bar"></i></div>
+        <div class="label" style="font-size: 10px; color: #6b7787">MINECRAFT: 地下城突袭</div>
+      </section>
+
+      <!-- ============ 主菜单 ============ -->
+      <section id="menu" class="screen">
+        <div class="title-block">
+          <h1 class="title">
+            <span class="title-block-text">MINECRAFT</span>
+            <span class="title-sub">地下城突袭 &nbsp;/&nbsp; DUNGEON SIEGE</span>
+          </h1>
+          <p class="tagline">第一人称方块射击 · 剑 / 弓 / 斧 · 僵尸与末影龙</p>
+        </div>
+
+        <div class="character-wrap">
+          <span class="character-label">主角</span>
+          <div class="character-picker" id="character-picker" role="group" aria-label="主角选择">
+            <button class="char-card is-active" data-char="steve" aria-pressed="true">
+              <canvas class="char-portrait"></canvas>
+              <span class="char-name">史蒂夫</span>
+              <span class="char-desc">经典方块人，大胡子矿工</span>
+              <span class="char-perk">均衡 —— 标准装备</span>
+            </button>
+            <button class="char-card" data-char="jiejie" aria-pressed="false">
+              <canvas class="char-portrait"></canvas>
+              <span class="char-name">杰杰</span>
+              <span class="char-desc">红色卫衣少年，机械发明家</span>
+              <span class="char-perk">机械发明家 —— 起始多带铁锭 ×3、火把 ×4</span>
+            </button>
+            <button class="char-card" data-char="maiqi" aria-pressed="false">
+              <canvas class="char-portrait"></canvas>
+              <span class="char-name">麦琪</span>
+              <span class="char-desc">绿色小乌龟，植物好朋友</span>
+              <span class="char-perk">植物好朋友 —— 起始多带面包 ×2、治疗药水 ×1</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="difficulty-wrap">
+          <span class="difficulty-label">难度</span>
+          <div class="difficulty-picker" id="difficulty-picker" role="group" aria-label="难度选择">
+            <button class="mc-btn diff-btn" data-diff="easy" aria-pressed="false">简单</button>
+            <button class="mc-btn diff-btn is-active" data-diff="normal" aria-pressed="true">普通</button>
+            <button class="mc-btn diff-btn" data-diff="hard" aria-pressed="false">困难</button>
+          </div>
+          <p class="difficulty-desc" id="difficulty-desc">身边最多 7 只怪，刷怪笼每十几秒补一只，但不会无限堆积。</p>
+        </div>
+
+        <div class="menu-actions">
+          <button id="btn-play" class="mc-btn primary">开始游戏</button>
+          <button id="btn-howto" class="mc-btn">操作指南</button>
+        </div>
+
+        <footer class="menu-foot">Three.js · 体素光照 · 程序化生成地牢</footer>
+      </section>
+
+      <!-- ============ 暂停 ============ -->
+      <section id="pause" class="screen" hidden>
+        <h2 class="pause-title">游戏暂停</h2>
+        <div class="menu-actions">
+          <button id="btn-resume" class="mc-btn primary">继续游戏</button>
+          <button id="btn-help" class="mc-btn">操作指南</button>
+          <button id="btn-restart" class="mc-btn">重新开始</button>
+        </div>
+      </section>
+
+      <!-- ============ 操作指南 ============ -->
+      <section id="help" class="screen help-screen" hidden>
+        <div class="help-panel">
+          <header class="help-head">
+            <h2 class="help-title">操作指南</h2>
+            <span class="help-hint">按 <kbd>H</kbd> 或 <kbd>Esc</kbd> 关闭</span>
+          </header>
+
+          <div class="help-body">
+            <section class="help-block">
+              <h3 class="help-h">操作键位</h3>
+              <div class="help-keys">
+                <div><kbd>W A S D</kbd><span>移动</span></div>
+                <div><kbd>Shift</kbd><span>疾跑</span></div>
+                <div><kbd>Ctrl</kbd><span>潜行（降低视高）</span></div>
+                <div><kbd>Space</kbd><span>跳跃</span></div>
+                <div><kbd>左键</kbd><span>攻击 / 挖掘 / 按住拉弓</span></div>
+                <div><kbd>右键</kbd><span>放置方块 / 吃食物</span></div>
+                <div><kbd>1 - 9</kbd><span>切换快捷栏</span></div>
+                <div><kbd>滚轮</kbd><span>切换快捷栏</span></div>
+                <div><kbd>Q</kbd><span>切换武器</span></div>
+                <div><kbd>R</kbd><span>切回弓箭</span></div>
+                <div><kbd>E</kbd><span>打开箱子 / 交互</span></div>
+                <div><kbd>F</kbd><span>打开 / 关闭装备面板</span></div>
+                <div><kbd>H</kbd><span>打开 / 关闭本指南</span></div>
+                <div><kbd>Esc</kbd><span>暂停</span></div>
+              </div>
+            </section>
+
+            <section class="help-block">
+              <h3 class="help-h">BOSS · 末影龙</h3>
+              <ul class="help-list">
+                <li>血量 <b>200</b>，会吐出龙息火球，落地会炸开。</li>
+                <li>祭坛四周的 <b>10 颗末影水晶</b>在持续为它回血 —— 水晶不清完，血几乎打不掉。</li>
+                <li>用箭射碎水晶后，它会掉落一颗<b>治疗水晶</b>，<b>需要再射一次</b>才能彻底清除。</li>
+                <li>它<b>飞行时被击中会瞬移</b>逃走；只有栖息在柱顶时才能被近战砍到。</li>
+                <li>推荐打法：先远程清空水晶 → 等它栖息柱顶 → 冲上去砍。</li>
+              </ul>
+            </section>
+
+            <section class="help-block">
+              <h3 class="help-h">战斗技巧</h3>
+              <ul class="help-list">
+                <li><b>弓箭</b>：按住左键蓄力，松开射击。箭会下坠，远距离要抬高准星。</li>
+                <li><b>箭矢</b>：快捷栏左上角的 <b>×N</b> 就是余箭数。<b>骷髅</b>和<b>蜘蛛</b>会掉箭，
+                  <b>箱子（E）</b>里也有 —— 打光了记得去搜刮。</li>
+                <li><b>近战</b>：左键挥砍。石斧伤害最高（6.5），砍方块速度是铁剑的 2 倍。</li>
+                <li><b>挖掘</b>：对着方块按住左键持续挖。拆掉刷怪笼可以阻止继续刷怪。</li>
+                <li><b>建造</b>：右键放方块。插火把能照亮走廊，掉到下层时也能搭路。</li>
+                <li><b>走位</b>：1 格高的台阶会自动跨上，2 格以上需要起跳。</li>
+                <li><b>补给</b>：走近掉落物自动拾取。箱子（E）里有箭、面包和护甲。</li>
+              </ul>
+            </section>
+
+            <section class="help-block">
+              <h3 class="help-h">武器升级 · 附魔台</h3>
+              <ul class="help-list">
+                <li>地牢每层都有一座<b>附魔台</b>，靠近会提示，按 <b>E</b> 打开界面。</li>
+                <li>击杀怪物获得<b>经验</b>（快捷栏上方的绿条与等级数字），经验等级用来支付附魔费用。</li>
+                <li>每件武器最多 <b>2 条附魔</b>，材料从箱子与掉落物里获取。</li>
+                <li><b>近战</b>：锋利（+伤害）、火焰（点燃并灼烧）、击退（击飞更远）、亡灵杀手（对僵尸骷髅额外伤害）。</li>
+                <li><b>弓</b>：无限（不消耗箭矢）、穿透（箭穿过多个敌人）、多重射击（一次三支箭）。</li>
+                <li><b>防具</b>：保护（减伤）、坚韧（+防御）、荆棘（反弹伤害）、生命（+最大生命）。</li>
+              </ul>
+            </section>
+
+            <section class="help-block">
+              <h3 class="help-h">主角</h3>
+              <ul class="help-list">
+                <li>主菜单里可以选主角：<b>史蒂夫</b>（经典方块人）、<b>杰杰</b>（红卫衣少年）、<b>麦琪</b>（背龟壳的小乌龟）。</li>
+                <li>主角影响<b>第一人称手臂</b>的颜色（袖子、皮肤），开局后看到的就是自己选的那条手臂。</li>
+                <li>每位主角还有自己的<b>起始补给</b>：史蒂夫是标准装备，杰杰多带铁锭与火把，麦琪多带面包与治疗药水。</li>
+                <li>选择会被记住，下次打开游戏还是这个主角。</li>
+              </ul>
+            </section>
+
+            <section class="help-block">
+              <h3 class="help-h">防具</h3>
+              <ul class="help-list">
+                <li>防具分<b>头盔 / 胸甲 / 护腿</b>三个部位，按 <b>F</b> 打开装备面板查看和更换。</li>
+                <li>走到防具上会<b>自动穿上</b>；身上已有更好的那件时会留在背包里，在装备面板点「装备」换上。</li>
+                <li><b>防御点数</b>决定减伤：每点 4%，最多减 70%。快捷栏上方会显示三个槽位和总防御。</li>
+                <li>三个部位全穿满，防御最高能到 19 点（钻石甲全套），减伤 70%。</li>
+                <li>来源：<b>箱子（E）</b>里约三成有防具，怪物也会掉 —— <b>越深掉得越好</b>。</li>
+                <li>站在<b>附魔台</b>旁边，在装备面板点防具上的「附魔」就能升级它。</li>
+              </ul>
+            </section>
+
+            <section class="help-block wide">
+              <h3 class="help-h">物品图鉴</h3>
+              <p class="help-note">
+                光看图标认不出东西 —— 打开游戏后，<b>快捷栏左侧会常驻显示手上物品的名称、用途和附魔</b>，
+                切换快捷栏即可查看。完整清单如下（共 <b id="dex-count">…</b> 件物品）：
+              </p>
+              <div class="item-dex" id="item-dex"></div>
+            </section>
+
+            <section class="help-block">
+              <h3 class="help-h">敌人图鉴</h3>
+              <div class="help-mobs">
+                <div class="help-mob">
+                  <span class="mob-name">僵尸</span>
+                  <span class="mob-stat">血量 20 · 近战 3</span>
+                  <span class="mob-tip">成群逼近。别被围住，边退边砍或用弓点掉。</span>
+                </div>
+                <div class="help-mob">
+                  <span class="mob-name">骷髅</span>
+                  <span class="mob-stat">血量 16 · 远程射箭</span>
+                  <span class="mob-tip">会保持距离放风筝，用箭先手，别让它靠近。</span>
+                </div>
+                <div class="help-mob">
+                  <span class="mob-name">苦力怕</span>
+                  <span class="mob-stat">血量 16 · 自爆</span>
+                  <span class="mob-tip">引信点燃后 4 格内高伤，立刻拉开距离或远程点掉。</span>
+                </div>
+                <div class="help-mob">
+                  <span class="mob-name">蜘蛛</span>
+                  <span class="mob-stat">血量 12 · 速度极快</span>
+                  <span class="mob-tip">被攻击前中立。先手为强，等它靠近就晚了。</span>
+                </div>
+              </div>
+            </section>
+
+            <section class="help-block">
+              <h3 class="help-h">地图与指引</h3>
+              <ul class="help-list">
+                <li>右上角是<b>小地图</b>，只显示你<b>当前这一层</b>：房间、走廊、竖井都在上面，
+                  面板下方写着「<b>1F / 4 层</b>」和你当前所在的房间名。</li>
+                <li><b>白点</b>是你，<b>白线</b>指你面朝的方向，<b>黄色脉冲圆环</b>是当前目标，
+                  圆环旁的数字是距离（米），虚线连着你和目标。</li>
+                <li>地图上的标记：<b>金色菱形</b> = 下行竖井，<b>金色方块</b> = 箱子，
+                  <b>紫色方块</b> = 附魔台，<b>红点</b> = 怪物。</li>
+                <li>顶部有一条<b>目标条</b>写着「第几层 / 目标是什么 / 有多远」；
+                  目标不在同一层时会写明<b>（在下面）</b>或<b>（在上面）</b>。</li>
+                <li>目标<b>不在画面里</b>时，屏幕边缘会出现一个<b>箭头</b>指向它 —— 转身跟着走就行。</li>
+                <li>屏幕上方的<b>罗盘箭头</b>表示目标的<b>相对方向</b>（在左还是在右）。</li>
+              </ul>
+            </section>
+
+            <section class="help-block">
+              <h3 class="help-h">怪物刷新</h3>
+              <ul class="help-list">
+                <li>开局时每个房间里已经摆了一些怪，<b>刷怪间</b>和<b>墓穴</b>的怪最多；整座地牢的初始怪物总预算按难度不同：<b>简单 5 只、普通 11 只、困难 19 只</b>。</li>
+                <li>房间里的<b>刷怪笼</b>会持续补怪 —— 你进入它的刷怪半径（12–22 米，按难度）后，每隔 11–42 秒冒出一只，带随机浮动，不会整片房间同时开刷。</li>
+                <li>同屏怪物有<b>数量上限</b>：<b>身边 30 米内</b>普通难度最多 <b>7 只</b>（简单 4 只、困难 11 只），<b>单个刷怪笼 12 米内</b>也有自己的上限，所以<b>不会无限堆积</b>。</li>
+                <li>刷怪笼产生的怪在离你 <b>70 米</b>外会被自动回收，所以来回跑几趟也不会越堆越多；<b>房间初始预置的怪不会被回收</b>。</li>
+                <li><b>拆掉刷怪笼</b>就能彻底断掉这个来源 —— 对着笼子按住左键挖即可。</li>
+                <li>嫌太难？回到主菜单可以切<b>简单</b>难度：怪更少、伤害更低；选择会被记住。</li>
+              </ul>
+            </section>
+
+            <section class="help-block">
+              <h3 class="help-h">通关流程</h3>
+              <ol class="help-steps">
+                <li>从入口所在的第一层（y = 58）出发，地牢共 <b>4 层</b>。</li>
+                <li>每层寻找 <b>5×5 的竖井</b>，井内有螺旋楼梯通向下一层。</li>
+                <li>搜刮箱子、拆掉刷怪笼，别让后方被小怪淹没。</li>
+                <li>抵达最底层（y = 12）的末影龙祭坛。</li>
+                <li>清掉 10 颗末影水晶，然后击败末影龙。</li>
+              </ol>
+            </section>
+
+            <section class="help-block">
+              <h3 class="help-h">生存提示</h3>
+              <ul class="help-list">
+                <li>右下角是饥饿值，饿空了会持续掉血 —— 血少时右键吃面包。</li>
+                <li>蓝色心是护甲，比红心更耐打。</li>
+                <li>死亡后可在检查点重生，不会从头开始。</li>
+                <li>右上角小地图能看清房间布局与竖井位置。</li>
+              </ul>
+            </section>
+          </div>
+
+          <div class="help-foot">
+            <button id="btn-help-close" class="mc-btn primary">返回游戏</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 装备 ============ -->
+      <section id="equipment" class="screen help-screen" hidden>
+        <div class="help-panel equip-panel">
+          <header class="help-head">
+            <h2 class="help-title">装备</h2>
+            <span class="help-hint">按 <kbd>F</kbd> 或 <kbd>Esc</kbd> 关闭</span>
+          </header>
+
+          <div class="equip-body" id="equip-body">
+            <div class="equip-equipped">
+              <h4 class="equip-title">已穿戴</h4>
+              <div class="equip-slots" id="equip-slots"></div>
+              <p class="equip-summary" id="equip-summary"></p>
+            </div>
+
+            <div class="equip-bag">
+              <h4 class="equip-title">背包里的防具</h4>
+              <div class="equip-list" id="equip-list"></div>
+            </div>
+          </div>
+
+          <div class="help-foot">
+            <button id="btn-equip-close" class="mc-btn primary">返回游戏</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 附魔台 ============ -->
+      <section id="enchant" class="screen help-screen" hidden>
+        <div class="help-panel enchant-panel">
+          <header class="help-head">
+            <h2 class="help-title">附魔台</h2>
+            <span class="help-hint">消耗 <b>经验等级</b> 与材料升级武器</span>
+          </header>
+
+          <div class="enchant-body">
+            <div class="enchant-target">
+              <div class="enchant-target-icon"><canvas id="enchant-icon" width="48" height="48"></canvas></div>
+              <div class="enchant-target-info">
+                <div class="enchant-target-name" id="enchant-item-name">未选择武器</div>
+                <div class="enchant-target-list" id="enchant-current">手持剑、斧或弓才能附魔</div>
+              </div>
+              <div class="enchant-level">
+                <span class="enchant-level-num" id="enchant-level">Lv.0</span>
+                <div class="enchant-xpbar"><i id="enchant-xp-fill"></i></div>
+                <span class="enchant-level-hint" id="enchant-xp-text">0 / 7</span>
+              </div>
+            </div>
+
+            <div class="enchant-options" id="enchant-options"></div>
+
+            <p class="enchant-note">
+              附魔只能附在武器上，每件武器最多 <b>2</b> 条。经验来自击杀怪物，
+              材料在箱子与掉落物里 —— 铁锭、金锭、骨头、圆石都是附魔材料。
+            </p>
+          </div>
+
+          <div class="help-foot">
+            <button id="btn-enchant-close" class="mc-btn primary">离开附魔台</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 死亡 ============ -->
+      <section id="dead" class="screen" hidden>
+        <h2 class="death-title">你死了！</h2>
+        <p class="death-sub" id="death-cause">被僵尸击败</p>
+        <div class="menu-actions">
+          <button id="btn-respawn" class="mc-btn primary">在检查点重生</button>
+          <button id="btn-restart2" class="mc-btn">重新开始</button>
+        </div>
+      </section>
+
+      <!-- ============ 通关 ============ -->
+      <section id="win" class="screen" hidden>
+        <h2 class="win-title">末影龙已被击败！</h2>
+        <p class="death-sub" id="win-stats"></p>
+        <div class="menu-actions">
+          <button id="btn-again" class="mc-btn primary">再来一次</button>
+        </div>
+      </section>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
