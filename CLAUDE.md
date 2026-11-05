@@ -25,9 +25,9 @@ npm run build        # 生产构建
 - 架构与数据流 → [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - 测试体系与新增套件 → [docs/TESTING.md](docs/TESTING.md)
 
-> ⚠️ **本项目还没有纳入版本控制**（目录下没有 `.git`）。
-> 改代码前没有 diff 可看、改坏了没法回滚 —— 动 `main.js` / `dungeon.js` 这种大文件之前，
-> 先 `cp` 一份备份，或者先 `git init` 再动手。
+> 项目已纳入 git（分支 `main`，首个提交是完整可玩的版本）。
+> 改动前先 `git status` 看一眼工作区是否干净 —— **不要把别人的半成品改动一起提交**。
+> 提交信息用 `<type>: <description>`（feat / fix / refactor / docs / test / chore）。
 
 ---
 
@@ -172,6 +172,9 @@ HUD 是纯 Canvas（用 `fillText`）；DOM 面板里的动态文本用 `textCon
 - 纯逻辑优先做成**无外部依赖的纯函数**并导出（`hud-vitals.js` 零依赖、`hud-nav.js` 只依赖 `core/floors.js`、
   `core/floors.js` 零依赖），这样才能脱离画布直接断言
 - 不提交外部资源文件；不用 `console.log`（用 `notify()`）
+- 提交信息用 `<type>: <description>`（feat / fix / refactor / docs / test / chore）；
+  **只提交自己改的文件**，别把工作区里别人的半成品一起带进去
+- 改了代码就把对应测试补上 —— 这个项目一半的 bug 是「改了没测」漏过去的
 
 ---
 
