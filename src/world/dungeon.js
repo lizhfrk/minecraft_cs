@@ -75,7 +75,7 @@ export class Dungeon {
     w.meta.set(w.index(corners[2][0], floorY, corners[2][1]), {
       type: 'chest',
       loot: [
-        { item: 'arrow', count: 16 },
+        { item: 'arrow', count: 24 },
         { item: 'bread', count: 4 },
         { item: 'iron', count: 3 },
         { item: 'torch', count: 8 },
@@ -467,12 +467,12 @@ export class Dungeon {
   /** 宝箱战利品。 */
   rollLoot() {
     const rng = this.rng;
-    const pool = ['arrow', 'arrow', 'arrow', 'bread', 'bread', 'iron', 'gold', 'torch', 'potion'];
+    const pool = ['arrow', 'arrow', 'arrow', 'arrow', 'bread', 'bread', 'iron', 'gold', 'torch', 'potion'];
     const n = rng.int(2, 4);
     const loot = [];
     for (let i = 0; i < n; i++) {
       const item = rng.pick(pool);
-      const count = item === 'arrow' ? rng.int(6, 14) : rng.int(1, 3);
+      const count = item === 'arrow' ? rng.int(10, 20) : rng.int(1, 3);
       loot.push({ item, count });
     }
     // 防具比较稀有，约三成的箱子有一件

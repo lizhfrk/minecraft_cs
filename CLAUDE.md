@@ -13,7 +13,7 @@
 ```bash
 npm install
 npm run dev          # http://localhost:5173
-npm test             # 12 个套件 167 项断言（约 4 分钟）
+npm test             # 13 个套件 178 项断言（约 5 分钟）
 npm run build        # 生产构建
 ```
 
@@ -153,7 +153,8 @@ URL 完全一致时浏览器会走模块缓存、不会重复执行 —— 所�
 ### 4.9 常量要有单一来源
 楼层高度 → `core/floors.js`；难度 → `core/difficulty.js`；角色 → `core/characters.js`；
 物品与防具 → `weapons/items.js`；附魔 → `weapons/enchants.js`。
-**别复制第二份**（曾出现过 `dungeon.js` 和 `main.js` 各一份 `FLOOR_Y`）。
+**别复制第二份**（曾出现过 `dungeon.js` 和 `main.js` 各一份 `FLOOR_Y`；
+`tools/spawn_test.py` 也曾把三档难度的 `maxNearby` 写死成第二份，现已改成从模块读）。
 
 ### 4.10 改了 `index.html` 的指南板块数，要同步 `tools/help_test.py`
 那个测试把「板块数 / 键位数」写死了。
@@ -162,6 +163,13 @@ URL 完全一致时浏览器会走模块缓存、不会重复执行 —— 所�
 HUD 是纯 Canvas（用 `fillText`）；DOM 面板里的动态文本用 `textContent`。
 `main.js` 里的 `innerHTML` 只允许插值**常量表**里的名字（物品名 / 附魔名）与**数字**，
 不要把玩家可控的文本拼进去。
+
+### 4.12 骷髅的 `meleeReach` 必须小于玩家的近战射程
+`ENEMY_TYPES.skeleton.meleeReach`（3.2）要小于铁剑射程（`weapons.js` 的 `range` 3.4）。
+大于它，骷髅就会永远后退，玩家**物理上碰不到它**，只能干挨射 ——
+这是「射箭的骷髅摸不到他」的成因。改这个值前先对一下剑的射程。
+同理，玩家自己的箭重力（`projectiles.js` 的 `PLAYER_ARROW_GRAVITY`）比敌人的小，
+是为了让 20 米内不用抬高准星也能打中；调回去会让远程手感崩掉。
 
 ---
 

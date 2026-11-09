@@ -274,7 +274,7 @@ src/
 项目带有基于 Playwright 的自动化检查脚本（需要先 `npm run dev`，依赖 Python 的 `playwright`）：
 
 ```bash
-npm test                      # 12 个套件 167 项断言（约 4 分钟）
+npm test                      # 13 个套件 178 项断言（约 5 分钟）
 npm run test:connectivity     # 地牢连通性 BFS（所有房间/竖井/竞技场必须可达）
 npm run test:seeds            # 100 个种子的地牢回归（慢，没串进 test 链）
 npm run test:gameplay         # 玩法闭环（弓箭命中、BOSS 击杀、死亡重生、进食、开箱、挖掘放置）
@@ -288,6 +288,7 @@ npm run test:armor            # 防具（装备槽、减伤、附魔、荆棘、
 npm run test:character        # 主角（立绘、切换、手臂配色、起始补给、选择记忆）
 npm run test:hud              # HUD（生命 / 饥饿条：满血必须是满格，奇数血半格）
 npm run test:nav              # 导航（小地图分层、目标标记、边缘箭头、罗盘方向）
+npm run test:skeleton         # 骷髅手感（近战够得到、箭打得中、不隔墙放箭）
 npm run test:smoke            # 冒烟测试 + 截图
 python3 tools/beauty_shots.py  # 各场景取景截图
 python3 tools/check_ui.py      # 难度选择 / 手持物品面板 / 物品图鉴 截图

@@ -922,7 +922,7 @@ class Game {
       this.player.giveItem('iron_sword');
       this.player.giveItem('bow');
       this.player.giveItem('stone_axe');
-      this.player.giveItem('arrow', 24);
+      this.player.giveItem('arrow', 32);
       this.player.giveItem('bread', 6);
       this.player.giveItem('torch', 12);
       // 角色自带的额外补给

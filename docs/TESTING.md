@@ -10,17 +10,17 @@
 ## 1. 跑
 
 ```bash
-npm test                # 全量：12 个套件，约 4 分钟
+npm test                # 全量：13 个套件，约 5 分钟
 npm run test:nav        # 单个套件
 python3 tools/nav_test.py   # 也可以直接跑
 npm run test:seeds      # 100 个种子的地牢回归（慢，没串进 test 链）
 ```
 
-全量链路（`package.json` 的 `test`，12 个套件）：
+全量链路（`package.json` 的 `test`，13 个套件）：
 
 ```
 connectivity → gameplay → soak → physics → enchant → regression
-→ help → spawn → armor → character → hud → nav
+→ help → spawn → armor → character → hud → nav → skeleton
 ```
 
 `test:seeds` 单独跑（100 个种子 × 完整 BFS，太慢，没串进 `test` 链）。
@@ -45,6 +45,7 @@ connectivity → gameplay → soak → physics → enchant → regression
 | `test:character` | `character_test.py` | 11 | 主角：立绘、切换、手臂配色、起始补给、选择记忆 |
 | `test:hud` | `hud_test.py` | 23 | HUD：满血必须是满格、奇数血半格、小数血、变长血条、几何对齐 |
 | `test:nav` | `nav_test.py` | 38 | 导航：小地图分层、目标标记、边缘箭头、罗盘方向、竖井目标 |
+| `test:skeleton` | `skeleton_test.py` | 11 | 骷髅手感：近战够得到、15 米外箭能命中、不隔墙放箭、箭矢供给、困难难度数值 |
 
 非测试脚本：
 
@@ -61,7 +62,7 @@ python3 tools/dump_slice.py     # 导出某个方块的贴图切片（调试用�
 ## 3. 脚本骨架
 
 > `check_connectivity.py` 与 `check_seeds.py` 是**老式脚本**，不走下面的 `check()` 框架
-> （它们直接打印并 `sys.exit(0/1)`，所以它们的检查项不计入「167 项断言」）。
+> （它们直接打印并 `sys.exit(0/1)`，所以它们的检查项不计入「178 项断言」）。
 > 其余套件都照抄 `tools/nav_test.py`：
 
 ```python

@@ -35,7 +35,7 @@ export const NEARBY_Y_TOLERANCE = 12;
 export const ROOM_POP = {
   easy: { budget: 5, denseMax: 1, sparseMax: 1 },
   normal: { budget: 11, denseMax: 2, sparseMax: 1 },
-  hard: { budget: 19, denseMax: 3, sparseMax: 1 },
+  hard: { budget: 15, denseMax: 2, sparseMax: 1 },
 };
 
 /** @type {Record<string, DifficultyDef>} */
@@ -65,13 +65,13 @@ export const DIFFICULTIES = {
   hard: {
     id: 'hard',
     label: '困难',
-    desc: '身边最多 11 只怪，刷怪笼频繁补怪，怪物伤害也更高。',
-    maxNearby: 11,
-    maxPerSpawner: 4,
-    spawnInterval: 11,
-    spawnJitter: 6,
-    spawnRadius: 22,
-    damageScale: 1.4,
+    desc: '身边最多 9 只怪，刷怪笼隔十几秒补一只，怪物伤害比普通高两成。',
+    maxNearby: 9,
+    maxPerSpawner: 3,
+    spawnInterval: 14,
+    spawnJitter: 7,
+    spawnRadius: 20,
+    damageScale: 1.25,
   },
 };
 

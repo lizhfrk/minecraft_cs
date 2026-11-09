@@ -21,8 +21,9 @@
     "test:character": "python3 tools/character_test.py",
     "test:hud": "python3 tools/hud_test.py",
     "test:nav": "python3 tools/nav_test.py",
+    "test:skeleton": "python3 tools/skeleton_test.py",
     "test:smoke": "python3 tools/smoke_test.py",
-    "test": "npm run test:connectivity && npm run test:gameplay && npm run test:soak && npm run test:physics && npm run test:enchant && npm run test:regression && npm run test:help && npm run test:spawn && npm run test:armor && npm run test:character && npm run test:hud && npm run test:nav"
+    "test": "npm run test:connectivity && npm run test:gameplay && npm run test:soak && npm run test:physics && npm run test:enchant && npm run test:regression && npm run test:help && npm run test:spawn && npm run test:armor && npm run test:character && npm run test:hud && npm run test:nav && npm run test:skeleton"
   },
   "dependencies": {
     "three": "^0.180.0"

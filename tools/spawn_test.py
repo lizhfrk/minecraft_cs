@@ -145,7 +145,10 @@ def main() -> None:
         # 初始怪物数量：不应超过当前难度的预算
         initial = page.evaluate("() => window.game.enemies.enemies.length")
         budget = page.evaluate(
-            "() => ({easy: 5, normal: 11, hard: 19})[window.game.difficulty.id]"
+            """async () => {
+              const m = await import('/src/core/difficulty.js');
+              return m.ROOM_POP[window.game.difficulty.id].budget;
+            }"""
         )
         check(
             "初始怪物数量不超过当前难度预算",
@@ -166,7 +169,15 @@ def main() -> None:
         )
         check("没有怪叠在同一格", stacked == 0, f"stacked_cells={stacked}")
 
-        for diff, expect_max in (("easy", 4), ("normal", 7), ("hard", 11)):
+        for diff in ("easy", "normal", "hard"):
+            # 期望值直接读难度定义，不在测试里抄第二份常量
+            expect_max = page.evaluate(
+                """async (d) => {
+                  const m = await import('/src/core/difficulty.js');
+                  return m.DIFFICULTIES[d].maxNearby;
+                }""",
+                diff,
+            )
             peak, limit, total = run_difficulty(page, diff, seconds=45)
             print(f"  {diff}: nearby_peak={peak} limit={limit} total={total}")
             check(

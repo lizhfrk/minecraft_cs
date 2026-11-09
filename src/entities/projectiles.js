@@ -6,7 +6,16 @@ import * as THREE from 'three';
 import { raycastVoxels, rayBoxDistance, raySphereDistance } from '../core/utils.js';
 import { createArrowMesh, disposeObject } from './models.js';
 
-const ARROW_GRAVITY = 14;
+/**
+ * 敌人的箭：抛物线明显，飞行慢，可以走位躲开。
+ */
+const ENEMY_ARROW_GRAVITY = 14;
+/**
+ * 玩家的箭：几乎平直。
+ * 之前和敌人共用 14 的重力，20 米外就要抬高一米多才能打中，
+ * 再叠上骷髅的全速横移，「怎么都打不中」。
+ */
+const PLAYER_ARROW_GRAVITY = 5;
 
 export class Projectile {
   /**
@@ -27,6 +36,8 @@ export class Projectile {
     this.owner = opts.owner || null;
     this.life = opts.life ?? 8;
     this.dead = false;
+    /** 重力加速度（米/秒²）：玩家的箭近乎平直，敌人的箭是抛物线。 */
+    this.gravity = opts.gravity ?? (opts.fromPlayer ? PLAYER_ARROW_GRAVITY : ENEMY_ARROW_GRAVITY);
     /** 剩余穿透次数（附魔「穿透」） */
     this.pierce = opts.pierce ?? 0;
     /** 伤害来源名称（敌人投射物用） */
@@ -62,7 +73,7 @@ export class Projectile {
     }
 
     const prev = this.pos.clone();
-    if (this.kind === 'arrow') this.vel.y -= ARROW_GRAVITY * dt;
+    if (this.kind === 'arrow') this.vel.y -= this.gravity * dt;
     this.pos.addScaledVector(this.vel, dt);
 
     // 实体命中

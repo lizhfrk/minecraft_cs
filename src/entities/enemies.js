@@ -4,7 +4,7 @@
  */
 import * as THREE from 'three';
 import { moveBody } from '../world/physics.js';
-import { clamp } from '../core/utils.js';
+import { clamp, raycastVoxels } from '../core/utils.js';
 import { NEARBY_RADIUS, NEARBY_Y_TOLERANCE } from '../core/difficulty.js';
 import {
   createZombie,
@@ -45,12 +45,22 @@ export const ENEMY_TYPES = {
     ranged: true,
     /** 骷髅的箭造成的伤害（会再乘难度倍率）。 */
     arrowDamage: 4,
-    preferredMin: 6,
-    preferredMax: 13,
+    /**
+     * 保持距离的上限（米）：比这更远就主动靠近。
+     */
+    preferredMax: 11,
+    /**
+     * 玩家贴到这个距离以内时，骷髅改用近战还手，不再后退。
+     * 必须小于玩家的近战射程（铁剑 3.4），否则骷髅永远在后退，
+     * 玩家连碰都碰不到 —— 「射箭的骷髅摸不到他」就是这里造成的死循环。
+     */
+    meleeReach: 3.2,
+    /** 横向游走的速度倍率：全速横移的骷髅几乎用箭打不中。 */
+    strafeSpeed: 0.55,
     shotCooldown: 2.1,
     xp: 7,
     drops: [
-      { item: 'arrow', chance: 0.55, count: [1, 3] },
+      { item: 'arrow', chance: 0.85, count: [2, 5] },
       { item: 'bone', chance: 0.2 },
     ],
   },
@@ -82,7 +92,7 @@ export const ENEMY_TYPES = {
     neutral: true,
     xp: 6,
     drops: [
-      { item: 'arrow', chance: 0.3, count: [1, 2] },
+      { item: 'arrow', chance: 0.45, count: [1, 3] },
       { item: 'bread', chance: 0.12 },
     ],
   },
@@ -248,6 +258,39 @@ export class Enemy {
   }
 
   /**
+   * 到自己与玩家之间是否通视（中间没有实心方块）。
+   * 没有这道判定，骷髅会隔着墙放箭 —— 「难度太高」的一大来源。
+   * @param {import('./player.js').Player} player
+   * @returns {boolean}
+   */
+  hasLineOfSight(player) {
+    const ox = this.pos.x;
+    const oy = this.pos.y + this.def.height * 0.75;
+    const oz = this.pos.z;
+    const dx = player.pos.x - ox;
+    const dy = player.pos.y + 1.1 - oy;
+    const dz = player.pos.z - oz;
+    const len = Math.hypot(dx, dy, dz);
+    if (len < 0.001) return true;
+    const dir = { x: dx / len, y: dy / len, z: dz / len };
+    // 起点所在的那一格不算遮挡：骷髅站在门框边时起点可能是实心方块
+    const sx = Math.floor(ox);
+    const sy = Math.floor(oy);
+    const sz = Math.floor(oz);
+    const hit = raycastVoxels(
+      this.world,
+      { x: ox, y: oy, z: oz },
+      dir,
+      len,
+      (x, y, z) => {
+        if (x === sx && y === sy && z === sz) return false;
+        return this.world.isSolid(x, y, z);
+      }
+    );
+    return !hit;
+  }
+
+  /**
    * 每帧更新。
    * @param {number} dt @param {import('./player.js').Player} player @param {object} game
    */
@@ -295,17 +338,38 @@ export class Enemy {
         }
       } else if (def.ranged) {
         this.shotTimer -= dt;
-        if (dist < def.preferredMin) {
-          wishX = -nx;
-          wishZ = -nz;
-        } else if (dist > def.preferredMax) {
+        // 玩家已经贴到近战距离内：压上去拼近战，不再后退。
+        // 这一段是「骷髅摸不到他」的解药 —— 原来这里无条件后退，
+        // 玩家在 3.4 米的剑够不到，骷髅在 6 米外一直退，两人永远碰不上。
+        const inMelee = dist < def.meleeReach;
+        if (dist > def.preferredMax) {
+          wishX = nx;
+          wishZ = nz;
+        } else if (inMelee) {
           wishX = nx;
           wishZ = nz;
         } else {
-          wishX = -nz * this.strafeDir;
-          wishZ = nx * this.strafeDir;
+          const strafe = def.strafeSpeed ?? 1;
+          wishX = -nz * this.strafeDir * strafe;
+          wishZ = nx * this.strafeDir * strafe;
         }
-        if (this.shotTimer <= 0 && dist < 20 && Math.abs(dy) < 12) {
+        if (dist < def.attackRange) {
+          // 贴脸了就不用箭了，改用近战 —— 免得玩家被近距离速射
+          if (this.attackTimer <= 0) {
+            this.attackTimer = def.attackCooldown;
+            this.attackAnim = 0.25;
+            const damage = def.damage * (game.difficulty?.damageScale ?? 1);
+            const died = player.applyDamage(damage, def.label);
+            game.audio.hurt();
+            game.onPlayerHurt(def.label);
+            if (died) game.onPlayerDeath(def.label);
+          }
+        } else if (
+          this.shotTimer <= 0 &&
+          dist < 20 &&
+          Math.abs(dy) < 12 &&
+          this.hasLineOfSight(player)
+        ) {
           this.shotTimer = def.shotCooldown;
           game.spawnEnemyArrow(this, player);
         }
